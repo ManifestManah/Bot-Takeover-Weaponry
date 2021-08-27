@@ -60,8 +60,18 @@ public Action Event_BotTakeOver(Handle event, const char[] name, bool dontBroadc
 		// If the bot had no weapon in the knife weapon slot then execute this section
 		if(Weapon_Knife == -1)
 		{
-			// Gives our player a knife
-			GivePlayerItem(client, "weapon_knife");
+			// If the player is on the terrorist team then execute this section
+			if (GetClientTeam(client) == 2)
+			{
+				// Gives our player a knife
+				GivePlayerItem(client, "weapon_knife_t");
+			}
+			// If the player is on the counter-terrorist team then execute this section
+			if (GetClientTeam(client) == 3)
+			{
+				// Gives our player a knife
+				GivePlayerItem(client, "weapon_knife");
+			}
 		}
 	}
 
@@ -73,12 +83,12 @@ public Action Event_BotTakeOver(Handle event, const char[] name, bool dontBroadc
 public Action GivePrimaryWeapon(int client)
 {
 	// Picks a random number between 1 and 16 and store the picked value within the variable RandomPrimaryChooser
-	int RandomPrimaryChooser = GetRandomInt(1, 16);
+	int RandomPrimaryChooser = GetRandomInt(1, 24);
 
 	// Depending on the number that was picked a different primary weapon will be given to the player
 	if(RandomPrimaryChooser == 1)
 	{
-		GivePlayerItem(client, "weapon_awp");
+		GivePlayerItem(client, "weapon_m4a1_silencer");
 	}
 	else if(RandomPrimaryChooser == 2)
 	{
@@ -90,7 +100,7 @@ public Action GivePrimaryWeapon(int client)
 	}
 	else if(RandomPrimaryChooser == 4)
 	{
-		GivePlayerItem(client, "weapon_ak47");
+		GivePlayerItem(client, "weapon_p90");
 	}
 	else if(RandomPrimaryChooser == 5)
 	{
@@ -139,6 +149,38 @@ public Action GivePrimaryWeapon(int client)
 	else if(RandomPrimaryChooser == 16)
 	{
 		GivePlayerItem(client, "weapon_mp9");
+	}
+	else if(RandomPrimaryChooser == 17)
+	{
+		GivePlayerItem(client, "weapon_xm1014");
+	}
+	else if(RandomPrimaryChooser == 18)
+	{
+		GivePlayerItem(client, "weapon_sawedoff");
+	}
+	else if(RandomPrimaryChooser == 19)
+	{
+		GivePlayerItem(client, "weapon_m249");
+	}
+	else if(RandomPrimaryChooser == 20)
+	{
+		GivePlayerItem(client, "weapon_mp5sd");
+	}
+	else if(RandomPrimaryChooser == 21)
+	{
+		GivePlayerItem(client, "weapon_mp7");
+	}
+	else if(RandomPrimaryChooser == 22)
+	{
+		GivePlayerItem(client, "weapon_awp");
+	}
+	else if(RandomPrimaryChooser == 23)
+	{
+		GivePlayerItem(client, "weapon_scar20");
+	}
+	else if(RandomPrimaryChooser == 24)
+	{
+		GivePlayerItem(client, "weapon_g3sg1");
 	}
 }
 
