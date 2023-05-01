@@ -19,6 +19,12 @@ public Plugin myinfo =
 };
 
 
+
+//////////////////////////
+// - Forwards & Hooks - //
+//////////////////////////
+
+
 // This happens when the plugin is loaded
 public void OnPluginStart()
 {
@@ -26,213 +32,355 @@ public void OnPluginStart()
 }
 
 
+
+////////////////
+// - Events - //
+////////////////
+
+
 public Action Event_BotTakeOver(Handle event, const char[] name, bool dontBroadcast)
 {
-	// Obtains the spawned player's userid and stores it within the variable client
+	// Obtains the client's userid and converts it to an index and store it within our client variable
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
-	// Checks if the player meets our client validation criteria
-	if(IsValidClient(client))
+	// If the client does not meet our validation criteria then execute this section
+	if(!IsValidClient(client))
 	{
-		// Checks if a player have a weapon in his primary weapon slot and store the data within the variable Weapon_Primary
-		int Weapon_Primary = GetPlayerWeaponSlot(client, 0);
-
-		// Checks if a player have a weapon in his secondary weapon slot and store the data within the variable Weapon_Secondary
-		int Weapon_Secondary = GetPlayerWeaponSlot(client, 1);
-
-		// Checks if a player have a weapon in his knife weapon slot and store the data within the variable Weapon_Knife
-		int Weapon_Knife = GetPlayerWeaponSlot(client, 2);
-
-		// If the bot had no weapon in the primary weapon slot then execute this section
-		if(Weapon_Primary == -1)
-		{
-			// Calls upon our GivePrimaryWeapon function
-			GivePrimaryWeapon(client);
-		}
-
-		// If the bot had no weapon in the secondary weapon slot then execute this section
-		if(Weapon_Secondary == -1)
-		{
-			// Calls upon our GiveSecondaryWeapon function
-			GiveSecondaryWeapon(client);
-		}
-
-		// If the bot had no weapon in the knife weapon slot then execute this section
-		if(Weapon_Knife == -1)
-		{
-			// If the player is on the terrorist team then execute this section
-			if (GetClientTeam(client) == 2)
-			{
-				// Gives our player a knife
-				GivePlayerItem(client, "weapon_knife_t");
-			}
-			// If the player is on the counter-terrorist team then execute this section
-			if (GetClientTeam(client) == 3)
-			{
-				// Gives our player a knife
-				GivePlayerItem(client, "weapon_knife");
-			}
-		}
+		return Plugin_Continue;
 	}
 
-	return Plugin_Handled;
+	// Gives the client a knife if one is not equipped by the client already
+	GiveKnife(client);
+
+	// Gives the client a primary weapon if one is not equipped by the client already
+	GivePrimaryWeapon(client);
+
+	// Gives the client a secondary weapon if one is not equipped by the client already
+	GiveSecondaryWeapon(client);
+
+	return Plugin_Continue;
 }
 
 
-// Gives the player his knife
-public Action GivePrimaryWeapon(int client)
+
+///////////////////////////
+// - Regular Functions - //
+///////////////////////////
+
+
+// This happens when a player takes over a bot
+public void GiveWeapon(int client, bool exactWeapon, const char[] weaponName)
 {
-	// Picks a random number between 1 and 16 and store the picked value within the variable RandomPrimaryChooser
-	int RandomPrimaryChooser = GetRandomInt(1, 24);
+	// If the value of exactWeapon is set to true then execute this section
+	if(exactWeapon)
+	{
+		// Creates a healthshot and store it's index within our entity variable
+		int entity = CreateEntityByName(weaponName);
 
-	// Depending on the number that was picked a different primary weapon will be given to the player
-	if(RandomPrimaryChooser == 1)
-	{
-		GivePlayerItem(client, "weapon_m4a1_silencer");
+		// If the entity does not meet our criteria validation then execute this section
+		if(!IsValidEntity(entity))
+		{
+			return;
+		}
+
+		// Creates a variable to store our data within
+		float playerLocation[3];
+
+		// Obtains the client's location and store it within the playerLocation variable
+		GetEntPropVector(client, Prop_Data, "m_vecOrigin", playerLocation);
+
+		// Spawns the entity
+		DispatchSpawn(entity);
+
+		// Teleports the entity to the player's location
+		TeleportEntity(entity, playerLocation, NULL_VECTOR, NULL_VECTOR);
+
+		return;
 	}
-	else if(RandomPrimaryChooser == 2)
-	{
-		GivePlayerItem(client, "weapon_ak47");
-	}
-	else if(RandomPrimaryChooser == 3)
-	{
-		GivePlayerItem(client, "weapon_m4a1");
-	}
-	else if(RandomPrimaryChooser == 4)
-	{
-		GivePlayerItem(client, "weapon_p90");
-	}
-	else if(RandomPrimaryChooser == 5)
-	{
-		GivePlayerItem(client, "weapon_nova");
-	}
-	else if(RandomPrimaryChooser == 6)
-	{
-		GivePlayerItem(client, "weapon_negev");
-	}
-	else if(RandomPrimaryChooser == 7)
-	{
-		GivePlayerItem(client, "weapon_mag7");
-	}
-	else if(RandomPrimaryChooser == 8)
-	{
-		GivePlayerItem(client, "weapon_sg556");
-	}
-	else if(RandomPrimaryChooser == 9)
-	{
-		GivePlayerItem(client, "weapon_aug");
-	}
-	else if(RandomPrimaryChooser == 10)
-	{
-		GivePlayerItem(client, "weapon_famas");
-	}
-	else if(RandomPrimaryChooser == 11)
-	{
-		GivePlayerItem(client, "weapon_galilar");
-	}
-	else if(RandomPrimaryChooser == 12)
-	{
-		GivePlayerItem(client, "weapon_ssg08");
-	}
-	else if(RandomPrimaryChooser == 13)
-	{
-		GivePlayerItem(client, "weapon_bizon");
-	}
-	else if(RandomPrimaryChooser == 14)
-	{
-		GivePlayerItem(client, "weapon_ump45");
-	}
-	else if(RandomPrimaryChooser == 15)
-	{
-		GivePlayerItem(client, "weapon_mac10");
-	}
-	else if(RandomPrimaryChooser == 16)
-	{
-		GivePlayerItem(client, "weapon_mp9");
-	}
-	else if(RandomPrimaryChooser == 17)
-	{
-		GivePlayerItem(client, "weapon_xm1014");
-	}
-	else if(RandomPrimaryChooser == 18)
-	{
-		GivePlayerItem(client, "weapon_sawedoff");
-	}
-	else if(RandomPrimaryChooser == 19)
-	{
-		GivePlayerItem(client, "weapon_m249");
-	}
-	else if(RandomPrimaryChooser == 20)
-	{
-		GivePlayerItem(client, "weapon_mp5sd");
-	}
-	else if(RandomPrimaryChooser == 21)
-	{
-		GivePlayerItem(client, "weapon_mp7");
-	}
-	else if(RandomPrimaryChooser == 22)
-	{
-		GivePlayerItem(client, "weapon_awp");
-	}
-	else if(RandomPrimaryChooser == 23)
-	{
-		GivePlayerItem(client, "weapon_scar20");
-	}
-	else if(RandomPrimaryChooser == 24)
-	{
-		GivePlayerItem(client, "weapon_g3sg1");
-	}
+
+	// Gives the client the specified weapon
+	GivePlayerItem(client, weaponName);
 }
 
 
-// Gives the player his knife
-public Action GiveSecondaryWeapon(int client)
+// This happens when a player takes over a bot
+public void GivePrimaryWeapon(int client)
 {
-	// Picks a random number between 1 and 10 and store the picked value within the variable RandomSecondaryChooser
-	int RandomSecondaryChooser = GetRandomInt(1, 10);
+	// Stores the weapon in the primary slot within the entity variable
+	int entity = GetPlayerWeaponSlot(client, 0);
 
-	// Depending on the number that was picked a different secondary weapon will be given to the player
-	if(RandomSecondaryChooser == 1)
+	// If the entity does not meet the criteria of validation then execute this section
+	if(!IsValidEntity(entity))
 	{
-		GivePlayerItem(client, "weapon_cz75a");
+		return;
 	}
-	else if(RandomSecondaryChooser == 2)
+
+	// Picks a random number between 1 and 24 and store it within our randomWeapon variable
+	int randomWeapon = GetRandomInt(1, 24);
+
+	// Creates a switch statement to manage outcomes depnding on the value of our variable
+	switch(randomWeapon)
 	{
-		GivePlayerItem(client, "weapon_deagle");
-	}
-	else if(RandomSecondaryChooser == 3)
-	{
-		GivePlayerItem(client, "weapon_elite");
-	}
-	else if(RandomSecondaryChooser == 4)
-	{
-		GivePlayerItem(client, "weapon_fiveseven");
-	}
-	else if(RandomSecondaryChooser == 5)
-	{
-		GivePlayerItem(client, "weapon_glock");
-	}
-	else if(RandomSecondaryChooser == 6)
-	{
-		GivePlayerItem(client, "weapon_hkp2000");
-	}
-	else if(RandomSecondaryChooser == 7)
-	{
-		GivePlayerItem(client, "weapon_p250");
-	}
-	else if(RandomSecondaryChooser == 8)
-	{
-		GivePlayerItem(client, "weapon_revolver");
-	}
-	else if(RandomSecondaryChooser == 9)
-	{
-		GivePlayerItem(client, "weapon_tec9");
-	}
-	else if(RandomSecondaryChooser == 10)
-	{
-		GivePlayerItem(client, "weapon_usp_silencer");
+		// If the randomWeapon variable is 1 then execute this section
+		case 1:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_xm1014");
+		}
+
+		case 2:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_sawedoff");
+		}
+
+		case 3:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_nova");
+		}
+
+		case 4:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_mag7");
+		}
+
+		case 5:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_negev");
+		}
+
+		case 6:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_m249");
+		}
+
+		case 7:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_mac10");
+		}
+
+		case 8:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_mp9");
+		}
+
+		case 9:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_mp7");
+		}
+
+		case 10:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_ump45");
+		}
+
+		case 11:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, true, "weapon_mp5sd");
+		}
+
+		case 12:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_bizon");
+		}
+
+		case 13:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_p90");
+		}
+
+		case 14:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_famas");
+		}
+
+		case 15:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_galilar");
+		}
+
+		case 16:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_sg556");
+		}
+
+		case 17:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_aug");
+		}
+
+		case 18:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_m4a1");
+		}
+
+		case 19:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, true, "weapon_m4a1_silencer");
+		}
+
+		case 20:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_ak47");
+		}
+
+		case 21:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_ssg08");
+		}
+
+		case 22:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_awp");
+		}
+
+		case 23:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_scar20");
+		}
+
+		case 24:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_g3sg1");
+		}
 	}
 }
+
+
+// This happens when a player takes over a bot
+public void GiveKnife(int client)
+{
+	// Stores the weapon in the knife slot within the entity variable
+	int entity = GetPlayerWeaponSlot(client, 2);
+
+	// If the entity does not meet the criteria of validation then execute this section
+	if(!IsValidEntity(entity))
+	{
+		return;
+	}
+
+	// If the player is on the terrorist team then execute this section
+	if(GetClientTeam(client) == 2)
+	{
+		// Gives our player a knife
+		GivePlayerItem(client, "weapon_knife_t");
+
+		return;
+	}
+
+	// Gives our player a knife
+	GivePlayerItem(client, "weapon_knife");
+}
+
+
+// This happens when a player takes over a bot
+public void GiveSecondaryWeapon(int client)
+{
+	// Stores the weapon in the secondary slot within the entity variable
+	int entity = GetPlayerWeaponSlot(client, 1);
+
+	// If the entity does not meet the criteria of validation then execute this section
+	if(!IsValidEntity(entity))
+	{
+		return;
+	}
+
+	// Picks a random number between 1 and 10 and store it within our randomWeapon variable
+	int randomWeapon = GetRandomInt(1, 10);
+
+	// Creates a switch statement to manage outcomes depnding on the value of our variable
+	switch(randomWeapon)
+	{
+		// If the randomWeapon variable is 1 then execute this section
+		case 1:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_glock");
+		}
+
+		case 2:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_fiveseven");
+		}
+
+		case 3:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_tec9");
+		}
+
+		case 4:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, true, "weapon_revolver");
+		}
+
+		case 5:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_deagle");
+		}
+
+		case 6:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_elite");
+		}
+
+		case 7:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, false, "weapon_p250");
+		}
+
+		case 8:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, true, "weapon_cz75a");
+		}
+
+		case 9:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, true, "weapon_hkp2000");
+		}
+
+		case 10:
+		{
+			// Gives the client the specified weapon
+			GiveWeapon(client, true, "weapon_usp_silencer");
+		}
+	}
+}
+
+
+
+////////////////////////////////
+// - Return Based Functions - //
+////////////////////////////////
 
 
 // We call upon this true and false statement whenever we wish to validate our player
